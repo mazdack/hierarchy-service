@@ -1,5 +1,7 @@
 package com.hierarchy.entity
 
+import org.hibernate.annotations.LazyToOne
+import org.hibernate.annotations.LazyToOneOption
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -21,6 +23,7 @@ class RelationshipEntity {
     lateinit var name: String
 
     @OneToOne
+    @LazyToOne(value = LazyToOneOption.FALSE)
     @JoinColumn(name = "supervisor_relationship_id")
-    lateinit var supervisor: RelationshipEntity
+    var supervisor: RelationshipEntity? = null
 }
