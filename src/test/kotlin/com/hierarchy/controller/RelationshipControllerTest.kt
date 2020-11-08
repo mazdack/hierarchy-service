@@ -4,12 +4,24 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.hierarchy.BaseTest
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.web.context.WebApplicationContext
+
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on
+
+import java.lang.invoke.MethodHandles.loop
+
+
+
 
 internal class RelationshipControllerTest: BaseTest() {
     @Autowired
@@ -25,8 +37,10 @@ internal class RelationshipControllerTest: BaseTest() {
         )
         val response = mockMvc.perform(
             MockMvcRequestBuilders.post("/relationship")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(input))
+                .with(httpBasic("user","password"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input))
+
         )
             .andExpect(MockMvcResultMatchers.status().isBadRequest)
             .andReturn()
@@ -44,6 +58,7 @@ internal class RelationshipControllerTest: BaseTest() {
         )
         val response = mockMvc.perform(
             MockMvcRequestBuilders.post("/relationship")
+                .with(httpBasic("user","password"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(input))
         )
@@ -80,6 +95,7 @@ internal class RelationshipControllerTest: BaseTest() {
 
         val responseString = mockMvc.perform(
             MockMvcRequestBuilders.post("/relationship")
+                .with(httpBasic("user","password"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(input))
         )
