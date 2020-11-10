@@ -1,3 +1,5 @@
 package com.hierarchy.exception
 
-class TooManyRootSupervisors(reason: String) : Throwable(reason)
+import org.springframework.http.HttpStatus
+
+class TooManyRootSupervisors(message: String) : RestException(message, HttpStatus.BAD_REQUEST)

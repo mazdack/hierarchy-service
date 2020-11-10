@@ -1,3 +1,5 @@
 package com.hierarchy.exception
 
-class HierarchyLoopDetected : Throwable("hierarchy loop detected")
+import org.springframework.http.HttpStatus
+
+class HierarchyLoopDetected: RestException("hierarchy loop detected", HttpStatus.BAD_REQUEST)
