@@ -60,6 +60,42 @@ internal class RelationshipControllerTest: BaseTest() {
     }
 
     @Test
+    fun `returns 400 on employee without supervisor`() {
+        val input = mapOf(
+            "Tom" to "Jerry",
+            "Mikki" to null
+        )
+        val response = mockMvc.perform(
+            MockMvcRequestBuilders.post("/relationship")
+                .with(httpBasic("user","password"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input))
+        )
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
+            .andReturn()
+            .response
+            .contentAsString
+
+        assertThat(response).contains("Employee without supervisor")
+    }
+
+    @Test
+    fun `returns 400 on empty map`() {
+        val response = mockMvc.perform(
+            MockMvcRequestBuilders.post("/relationship")
+                .with(httpBasic("user","password"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(emptyMap<String, String>()))
+        )
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
+            .andReturn()
+            .response
+            .contentAsString
+
+        assertThat(response).contains("Employee hierarchy not provided")
+    }
+
+    @Test
     fun `correctly maps the answer`() {
         val input = mapOf(
             "Pete" to "Nick",

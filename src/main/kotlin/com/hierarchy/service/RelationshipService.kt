@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.hierarchy.dxo.SupervisorsDxo
 import com.hierarchy.entity.RelationshipEntity
-import com.hierarchy.exception.HierarchyLoopDetected
-import com.hierarchy.exception.RelationShipNotFound
-import com.hierarchy.exception.TooManyRootSupervisors
+import com.hierarchy.exception.EmployeeHierarchyIsEmptyException
+import com.hierarchy.exception.EmployeeWithoutSupervisorException
+import com.hierarchy.exception.HierarchyLoopDetectedException
+import com.hierarchy.exception.RelationShipNotFoundException
+import com.hierarchy.exception.TooManyRootSupervisorsException
 import com.hierarchy.repository.RelationshipRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -21,15 +23,21 @@ class RelationshipService(
     fun overwriteRelationships(employeeToSupervisor: Map<String, String>): ObjectNode {
         val employees = employeeToSupervisor.keys
         val supervisors = employeeToSupervisor.values.toSet()
-
         val rootSupervisor = supervisors - employees
 
-        when(rootSupervisor.size) {
-            0 -> throw HierarchyLoopDetected()
-            1 -> {
-                return persistHierarchy(rootSupervisor.single(), employeeToSupervisor)
-            }
-            else -> throw TooManyRootSupervisors("Looking for 1 root, but found ${rootSupervisor.size}: $rootSupervisor")
+        if (employeeToSupervisor.isEmpty()) {
+            throw EmployeeHierarchyIsEmptyException()
+        }
+
+        @Suppress("TYPE_INFERENCE_ONLY_INPUT_TYPES_WARNING")
+        if (supervisors.contains(null)) {
+            throw EmployeeWithoutSupervisorException()
+        }
+
+        return when(rootSupervisor.size) {
+            0 -> throw HierarchyLoopDetectedException()
+            1 -> persistHierarchy(rootSupervisor.single(), employeeToSupervisor)
+            else -> throw TooManyRootSupervisorsException("Looking for 1 root, but found ${rootSupervisor.size}: $rootSupervisor")
         }
     }
 
@@ -73,5 +81,5 @@ class RelationshipService(
                 it.supervisor?.supervisor?.name
             )
         }
-        .orElseThrow { RelationShipNotFound("relationship for name = $employeeName was not found") }
+        .orElseThrow { RelationShipNotFoundException("relationship for name = $employeeName was not found") }
 }
